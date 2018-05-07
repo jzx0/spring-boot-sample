@@ -1,5 +1,7 @@
 package com.wisely.ch5_2_3.web;
 
+import com.wisely.ch5_2_3.config.AuthorSettings;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -13,6 +15,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class HelloController {
 
+    @Autowired
+    private AuthorSettings authorSettings;
+
     @Value("${book.author}")
     private String bookAuthor;
     @Value("${book.name}")
@@ -23,8 +28,13 @@ public class HelloController {
         return "Hello, Spring Boot.";
     }
 
-    @RequestMapping(value = "book")
+    @RequestMapping("book")
     public String book() {
         return "book name is:" + bookName + " and book author is:" + bookAuthor;
+    }
+
+    @RequestMapping("author")
+    public String author() {
+        return "author name is:" + authorSettings.getName() + " and author age is:" + authorSettings.getAge();
     }
 }
