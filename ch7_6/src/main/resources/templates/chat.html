@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+<head>
+    <meta charset="UTF-8">
+    <title>聊天</title>
+</head>
+<body>
+
+    <p>聊天室</p>
+
+    Logged user: <p th:text="${user.getName()}"/>
+    <form id="wiselyForm">
+        <div><label>发送给：</label><input id="sendTo" type="text" name="sendTo"/></div>
+        <textarea rows="4" cols="60" name="text"></textarea>
+        <input type="submit"/>
+    </form>
+    <button id="stop">退出聊天</button>
+    <div id="output"></div>
+
+    <script th:src="@{sockjs.min.js}"></script>
+    <script th:src="@{stomp.min.js}"></script>
+    <script th:src="@{jquery-3.3.1.min.js}"></script>
+
+    <script th:inline="javascript">
+        $('#wiselyForm').submit(function (e) {
+            e.preventDefault();
+            var sendTo = $('#sendTo').val();
+            var msg = $('#wiselyForm').find('textarea[name="text"]').val();
+            sendSpittle(sendTo, msg);
+        });
+
+        var sock = new SockJS("/endpointChat");
+        var stomp = Stomp.over(sock);
+        stomp.connect({}, function (frame) {
+            stomp.subscribe("/user/queue/notifications", handleNotification);
+        });
+
+        function handleNotification(message) {
+            $('#output').append("<b>Received:" + message.body + "</b><br/>")
+        }
+
+        function sendSpittle(sendTo, msg) {
+            stomp.send("/chat", {}, JSON.stringify({'sendTo': sendTo, 'msg':msg}));
+        }
+
+        $('#stop').click(function () {
+            sock.close();
+        })
+    </script>
+</body>
+</html>
