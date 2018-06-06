@@ -1,5 +1,6 @@
 package com.wisely.ch8_2.web;
 
+import com.wisely.ch8_2.dao.CustomPersonRepository;
 import com.wisely.ch8_2.dao.PersonRepository;
 import com.wisely.ch8_2.model.Person;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,8 @@ public class DataController {
     // Spring Data JPA已自动注册bean，所以可自动注入
     @Autowired
     PersonRepository personRepository;
+    @Autowired
+    CustomPersonRepository customPersonRepository;
 
     /**
      * 保存
@@ -85,6 +88,19 @@ public class DataController {
     @RequestMapping("/page")
     public Page<Person> page(Integer page, Integer size) {
         Page<Person> personPage = personRepository.findAll(PageRequest.of(page, size));
+        return personPage;
+    }
+
+    /**
+     * 使用自定义Specification
+     * @param person
+     * @param page
+     * @param size
+     * @return
+     */
+    @RequestMapping("/pageAuto")
+    public Page<Person> pageAuto(Person person, Integer page, Integer size) {
+        Page<Person> personPage = customPersonRepository.findByAuto(person, PageRequest.of(page, size));
         return personPage;
     }
 }
